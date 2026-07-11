@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs';
+const fs = require('fs');
 
 // The CI/CD pipeline will pass the branch name as an argument
 const branchName = process.argv[2];
