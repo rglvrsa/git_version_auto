@@ -1,0 +1,41 @@
+name: Automate Version Naming
+
+# Trigger this workflow when a Pull Request is closed on main or develop
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - develop
+
+jobs:
+  bump-version:
+    # Only run this job if the PR was actually merged (not just closed/canceled)
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history so we can push back to the repo
+          fetch-depth: 0 
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Version Bump Script
+        run: |
+          # Pass the head branch of the PR (e.g., feature/login, hotfix/typo) to the script
+          node bump-version.js "${{ github.event.pull_request.head.ref }}"
+
+      - name: Commit and Push New Version
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add package.json
+          git commit -m "chore: bump version [skip ci]"
+          git push
