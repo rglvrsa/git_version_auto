@@ -10,7 +10,8 @@ if (!branchName) {
 
 // 1. Read current version from package.json
 const packagePath = './package.json';
-const packageData = JSON.parse(readFileSync(packagePath, 'utf8'));
+// Notice the 'fs.' added here!
+const packageData = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
 // 2. Parse MAJOR, MINOR, PATCH
 let [major, minor, patch] = packageData.version.split('.').map(Number);
@@ -40,5 +41,6 @@ if (branchName.startsWith('hotfix/')) {
 const newVersion = `${major}.${minor}.${patch}`;
 packageData.version = newVersion;
 
-writeFileSync(packagePath, JSON.stringify(packageData, null, 2) + '\n');
+// Notice the 'fs.' added here!
+fs.writeFileSync(packagePath, JSON.stringify(packageData, null, 2) + '\n');
 console.log(`Successfully updated version to ${newVersion}`);
