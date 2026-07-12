@@ -18,7 +18,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # Fetch full history so we can push back to the repo
+          # MAGIC FIX 1: Explicitly check out the branch we just merged into
+          ref: ${{ github.base_ref }} 
           fetch-depth: 0 
 
       - name: Setup Node.js
@@ -28,7 +29,7 @@ jobs:
 
       - name: Run Version Bump Script
         run: |
-          # Pass the head branch of the PR (e.g., feature/login, hotfix/typo) to the script
+          # Pass the head branch of the PR to the script
           node bump-version.js "${{ github.event.pull_request.head.ref }}"
 
       - name: Commit and Push New Version
@@ -38,4 +39,8 @@ jobs:
           
           git add package.json
           git commit -m "chore: bump version [skip ci]"
+          
+          # MAGIC FIX 2: Pull the absolute latest changes right before pushing
+          git pull --rebase origin ${{ github.base_ref }}
+          
           git push
